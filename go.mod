@@ -1,4 +1,4 @@
-module github.com/danielerez/dns-lib-go
+module github.com/danielerez/go-dns-client
 
 go 1.14
 

@@ -4,7 +4,7 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/danielerez/dns-lib-go/pkg/dnsproviders"
+	"github.com/danielerez/go-dns-client/pkg/dnsproviders"
 )
 
 func main() {
