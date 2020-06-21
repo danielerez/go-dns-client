@@ -21,6 +21,6 @@
 
 ### Run
     $ docker run -v $HOME/.aws/credentials:/root/.aws/credentials:ro dns-client \
-    -hosted-zone-id <hosted-zone-id> \
-    -record-set-name <record-set-name> \
-    -record-set-value <record-set-value>
+        -hosted-zone-id <hosted-zone-id> \
+        -record-set-name <record-set-name> \
+        -record-set-value <record-set-value>
