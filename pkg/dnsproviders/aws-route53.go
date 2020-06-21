@@ -17,12 +17,17 @@ type Route53 struct {
 
 // CreateRecordSet creates a record set
 func (r Route53) CreateRecordSet(recordSetName, recordSetValue string) (string, error) {
-	return r.ChangeRecordSet("UPSERT", recordSetName, recordSetValue)
+	return r.ChangeRecordSet("CREATE", recordSetName, recordSetValue)
 }
 
 // DeleteRecordSet deletes a record set
 func (r Route53) DeleteRecordSet(recordSetName, recordSetValue string) (string, error) {
 	return r.ChangeRecordSet("DELETE", recordSetName, recordSetValue)
+}
+
+// UpdateRecordSet updates a record set
+func (r Route53) UpdateRecordSet(recordSetName, recordSetValue string) (string, error) {
+	return r.ChangeRecordSet("UPSERT", recordSetName, recordSetValue)
 }
 
 // ChangeRecordSet change record set according to specified action

@@ -30,8 +30,10 @@ func main() {
 	var output string
 	var err error
 	switch action {
-	case "UPSERT":
+	case "CREATE":
 		output, err = dnsProvider.CreateRecordSet(recordSetName, recordSetValue)
+	case "UPSERT":
+		output, err = dnsProvider.UpdateRecordSet(recordSetName, recordSetValue)
 	case "DELETE":
 		output, err = dnsProvider.DeleteRecordSet(recordSetName, recordSetValue)
 	}

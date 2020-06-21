@@ -2,6 +2,7 @@ package dnsproviders
 
 type Provider interface {
 	CreateRecordSet(recordSetName, recordSetValue string) (string, error)
+	UpdateRecordSet(recordSetName, recordSetValue string) (string, error)
 	DeleteRecordSet(recordSetName, recordSetValue string) (string, error)
 }
 
