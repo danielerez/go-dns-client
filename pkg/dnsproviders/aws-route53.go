@@ -2,6 +2,7 @@ package dnsproviders
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -13,6 +14,16 @@ import (
 // Route53 represnets a Route53 client
 type Route53 struct {
 	RecordSet RecordSet
+}
+
+func (r Route53) getService() (*route53.Route53, error) {
+	sess, err := session.NewSession(&aws.Config{
+		Credentials: credentials.NewSharedCredentials("", "route53"),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return route53.New(sess), nil
 }
 
 // CreateRecordSet creates a record set
@@ -32,13 +43,10 @@ func (r Route53) UpdateRecordSet(recordSetName, recordSetValue string) (string, 
 
 // ChangeRecordSet change record set according to specified action
 func (r Route53) ChangeRecordSet(action, recordSetName, recordSetValue string) (string, error) {
-	sess, err := session.NewSession(&aws.Config{
-		Credentials: credentials.NewSharedCredentials("", "route53"),
-	})
+	svc, err := r.getService()
 	if err != nil {
 		return "", err
 	}
-	svc := route53.New(sess)
 
 	input := &route53.ChangeResourceRecordSetsInput{
 		ChangeBatch: &route53.ChangeBatch{
@@ -84,4 +92,35 @@ func (r Route53) ChangeRecordSet(action, recordSetName, recordSetValue string) (
 	}
 
 	return result.String(), nil
+}
+
+// GetRecordSet returns a record set according to specified name
+func (r Route53) GetRecordSet(recordSetName string) (string, error) {
+	svc, err := r.getService()
+	if err != nil {
+		return "", err
+	}
+
+	listParams := &route53.ListResourceRecordSetsInput{
+		HostedZoneId:    aws.String(r.RecordSet.HostedZoneID),
+		MaxItems:        aws.String("1"),
+		StartRecordName: aws.String(recordSetName),
+	}
+	respList, err := svc.ListResourceRecordSets(listParams)
+	if err != nil {
+		return "", err
+	}
+
+	if len(respList.ResourceRecordSets) == 0 {
+		// RecordSet not found
+		return "", nil
+	}
+
+	recordSetNameAWSFormat := strings.Replace(recordSetName, "*", "\\052", 1) + "."
+	if recordSetNameAWSFormat != *respList.ResourceRecordSets[0].Name {
+		// RecordSet not found
+		return "", nil
+	}
+
+	return respList.ResourceRecordSets[0].String(), nil
 }

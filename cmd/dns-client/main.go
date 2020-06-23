@@ -12,7 +12,7 @@ func main() {
 	var hostedZoneID, recordSetName, recordSetValue string
 	var ttl int64
 
-	flag.StringVar(&action, "action", "CREATE", "Action to execute (CREATE/UPSERT/DELETE).")
+	flag.StringVar(&action, "action", "CREATE", "Action to execute (CREATE/UPSERT/DELETE/GET).")
 	flag.StringVar(&hostedZoneID, "hosted-zone-id", "", "HostedZone ID.")
 	flag.StringVar(&recordSetName, "record-set-name", "", "RecordSet name.")
 	flag.StringVar(&recordSetValue, "record-set-value", "", "RecordSet value.")
@@ -36,6 +36,8 @@ func main() {
 		output, err = dnsProvider.UpdateRecordSet(recordSetName, recordSetValue)
 	case "DELETE":
 		output, err = dnsProvider.DeleteRecordSet(recordSetName, recordSetValue)
+	case "GET":
+		output, err = dnsProvider.GetRecordSet(recordSetName)
 	}
 
 	if err != nil {
