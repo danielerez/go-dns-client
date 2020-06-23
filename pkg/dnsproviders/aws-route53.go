@@ -41,7 +41,7 @@ func (r Route53) UpdateRecordSet(recordSetName, recordSetValue string) (string, 
 	return r.ChangeRecordSet("UPSERT", recordSetName, recordSetValue)
 }
 
-// ChangeRecordSet change record set according to specified action
+// ChangeRecordSet change record set according to the specified action
 func (r Route53) ChangeRecordSet(action, recordSetName, recordSetValue string) (string, error) {
 	svc, err := r.getService()
 	if err != nil {
@@ -94,7 +94,7 @@ func (r Route53) ChangeRecordSet(action, recordSetName, recordSetValue string) (
 	return result.String(), nil
 }
 
-// GetRecordSet returns a record set according to specified name
+// GetRecordSet returns a record set according to the specified name
 func (r Route53) GetRecordSet(recordSetName string) (string, error) {
 	svc, err := r.getService()
 	if err != nil {
