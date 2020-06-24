@@ -7,21 +7,26 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/route53"
+	"github.com/aws/aws-sdk-go/service/route53/route53iface"
 )
 
 // Route53 represnets a Route53 client
 type Route53 struct {
 	RecordSet RecordSet
+	SVC       route53iface.Route53API
 }
 
-func (r Route53) getService() (*route53.Route53, error) {
-	sess, err := session.NewSession(&aws.Config{
-		Credentials: credentials.NewSharedCredentials("", "route53"),
-	})
-	if err != nil {
-		return nil, err
+func (r Route53) getService() (route53iface.Route53API, error) {
+	if r.SVC == nil {
+		sess, err := session.NewSession(&aws.Config{
+			Credentials: credentials.NewSharedCredentials("", "route53"),
+		})
+		if err != nil {
+			return nil, err
+		}
+		r.SVC = route53.New(sess)
 	}
-	return route53.New(sess), nil
+	return r.SVC, nil
 }
 
 // CreateRecordSet creates a record set
@@ -96,7 +101,7 @@ func (r Route53) GetRecordSet(recordSetName string) (string, error) {
 
 	recordSetNameAWSFormat := strings.Replace(recordSetName, "*", "\\052", 1) + "."
 	recordSet := respList.ResourceRecordSets[0]
-	if *recordSet.Type != r.RecordSet.RecordSetType || 
+	if *recordSet.Type != r.RecordSet.RecordSetType ||
 		recordSetNameAWSFormat != *recordSet.Name {
 		// RecordSet not found
 		return "", nil
