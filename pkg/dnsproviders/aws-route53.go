@@ -1,11 +1,9 @@
 package dnsproviders
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/route53"
@@ -70,28 +68,7 @@ func (r Route53) ChangeRecordSet(action, recordSetName, recordSetValue string) (
 	}
 
 	result, err := svc.ChangeResourceRecordSets(input)
-	if err != nil {
-		if aerr, ok := err.(awserr.Error); ok {
-			switch aerr.Code() {
-			case route53.ErrCodeNoSuchHostedZone:
-				fmt.Println(route53.ErrCodeNoSuchHostedZone, aerr.Error())
-			case route53.ErrCodeNoSuchHealthCheck:
-				fmt.Println(route53.ErrCodeNoSuchHealthCheck, aerr.Error())
-			case route53.ErrCodeInvalidChangeBatch:
-				fmt.Println(route53.ErrCodeInvalidChangeBatch, aerr.Error())
-			case route53.ErrCodeInvalidInput:
-				fmt.Println(route53.ErrCodeInvalidInput, aerr.Error())
-			case route53.ErrCodePriorRequestNotComplete:
-				fmt.Println(route53.ErrCodePriorRequestNotComplete, aerr.Error())
-			default:
-				return "", aerr
-			}
-		} else {
-			return "", err
-		}
-	}
-
-	return result.String(), nil
+	return result.String(), err
 }
 
 // GetRecordSet returns a record set according to the specified name
@@ -105,6 +82,7 @@ func (r Route53) GetRecordSet(recordSetName string) (string, error) {
 		HostedZoneId:    aws.String(r.RecordSet.HostedZoneID),
 		MaxItems:        aws.String("1"),
 		StartRecordName: aws.String(recordSetName),
+		StartRecordType: aws.String(r.RecordSet.RecordSetType),
 	}
 	respList, err := svc.ListResourceRecordSets(listParams)
 	if err != nil {
@@ -117,10 +95,12 @@ func (r Route53) GetRecordSet(recordSetName string) (string, error) {
 	}
 
 	recordSetNameAWSFormat := strings.Replace(recordSetName, "*", "\\052", 1) + "."
-	if recordSetNameAWSFormat != *respList.ResourceRecordSets[0].Name {
+	recordSet := respList.ResourceRecordSets[0]
+	if *recordSet.Type != r.RecordSet.RecordSetType || 
+		recordSetNameAWSFormat != *recordSet.Name {
 		// RecordSet not found
 		return "", nil
 	}
 
-	return respList.ResourceRecordSets[0].String(), nil
+	return recordSet.String(), nil
 }

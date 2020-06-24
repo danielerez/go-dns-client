@@ -8,7 +8,7 @@ type Provider interface {
 }
 
 type RecordSet struct {
-	HostedZoneID string
+	HostedZoneID  string
 	RecordSetType string
-	TTL int64
+	TTL           int64
 }
