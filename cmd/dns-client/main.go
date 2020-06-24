@@ -12,6 +12,7 @@ func main() {
 	var hostedZoneID, recordSetName, recordSetValue string
 	var ttl int64
 	var sharedCreds bool
+	var deafultEnvVars bool
 
 	flag.StringVar(&action, "action", "CREATE", "Action to execute (CREATE/UPSERT/DELETE/GET).")
 	flag.StringVar(&hostedZoneID, "hosted-zone-id", "", "HostedZone ID.")
@@ -19,6 +20,7 @@ func main() {
 	flag.StringVar(&recordSetValue, "record-set-value", "", "RecordSet value.")
 	flag.Int64Var(&ttl, "ttl", 60, "TTL in seconds.")
 	flag.BoolVar(&sharedCreds, "shared-creds", false, "Use shared .aws/credentials file ('route53' profile).")
+	flag.BoolVar(&deafultEnvVars, "default-env-vars", false, "Use default env vars (AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY).")
 	flag.Parse()
 
 	var dnsProvider dnsproviders.Provider = dnsproviders.Route53{
@@ -28,6 +30,7 @@ func main() {
 			TTL:           ttl,
 		},
 		SharedCreds: sharedCreds,
+		DeafultEnvVars: deafultEnvVars,
 	}
 
 	var output string

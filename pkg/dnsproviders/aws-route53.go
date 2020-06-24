@@ -1,6 +1,7 @@
 package dnsproviders
 
 import (
+	"os"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -12,9 +13,10 @@ import (
 
 // Route53 represnets a Route53 client
 type Route53 struct {
-	RecordSet   RecordSet
-	SVC         route53iface.Route53API
-	SharedCreds bool
+	RecordSet      RecordSet
+	SVC            route53iface.Route53API
+	SharedCreds    bool
+	DeafultEnvVars bool
 }
 
 func (r Route53) getService() (route53iface.Route53API, error) {
@@ -24,6 +26,14 @@ func (r Route53) getService() (route53iface.Route53API, error) {
 			config = &aws.Config{
 				Credentials: credentials.NewSharedCredentials("", "route53"),
 			}
+		}
+		if !r.DeafultEnvVars {
+			config = &aws.Config{
+				Credentials: credentials.NewStaticCredentials(
+					os.Getenv("AWS_ACCESS_KEY_ID_ROUTE53"),
+					os.Getenv("AWS_SECRET_ACCESS_KEY_ROUTE53"),
+					""),
+				}
 		}
 		sess, err := session.NewSession(config)
 		if err != nil {
