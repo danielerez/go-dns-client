@@ -12,15 +12,20 @@ import (
 
 // Route53 represnets a Route53 client
 type Route53 struct {
-	RecordSet RecordSet
-	SVC       route53iface.Route53API
+	RecordSet   RecordSet
+	SVC         route53iface.Route53API
+	SharedCreds bool
 }
 
 func (r Route53) getService() (route53iface.Route53API, error) {
 	if r.SVC == nil {
-		sess, err := session.NewSession(&aws.Config{
-			Credentials: credentials.NewSharedCredentials("", "route53"),
-		})
+		var config *aws.Config
+		if r.SharedCreds {
+			config = &aws.Config{
+				Credentials: credentials.NewSharedCredentials("", "route53"),
+			}
+		}
+		sess, err := session.NewSession(config)
 		if err != nil {
 			return nil, err
 		}

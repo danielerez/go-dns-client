@@ -11,20 +11,23 @@ func main() {
 	var action string
 	var hostedZoneID, recordSetName, recordSetValue string
 	var ttl int64
+	var sharedCreds bool
 
 	flag.StringVar(&action, "action", "CREATE", "Action to execute (CREATE/UPSERT/DELETE/GET).")
 	flag.StringVar(&hostedZoneID, "hosted-zone-id", "", "HostedZone ID.")
 	flag.StringVar(&recordSetName, "record-set-name", "", "RecordSet name.")
 	flag.StringVar(&recordSetValue, "record-set-value", "", "RecordSet value.")
 	flag.Int64Var(&ttl, "ttl", 60, "TTL in seconds.")
+	flag.BoolVar(&sharedCreds, "shared-creds", false, "Use shared .aws/credentials file ('route53' profile).")
 	flag.Parse()
 
 	var dnsProvider dnsproviders.Provider = dnsproviders.Route53{
 		RecordSet: dnsproviders.RecordSet{
-			HostedZoneID: hostedZoneID,
+			HostedZoneID:  hostedZoneID,
 			RecordSetType: "A",
-			TTL: ttl,
+			TTL:           ttl,
 		},
+		SharedCreds: sharedCreds,
 	}
 
 	var output string
