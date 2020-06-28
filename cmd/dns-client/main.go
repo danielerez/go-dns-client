@@ -19,17 +19,17 @@ func main() {
 	flag.StringVar(&recordSetName, "record-set-name", "", "RecordSet name.")
 	flag.StringVar(&recordSetValue, "record-set-value", "", "RecordSet value.")
 	flag.Int64Var(&ttl, "ttl", 60, "TTL in seconds.")
-	flag.BoolVar(&sharedCreds, "shared-creds", false, "Use shared .aws/credentials file ('route53' profile).")
+	flag.BoolVar(&sharedCreds, "shared-creds", true, "Use shared .aws/credentials file ('route53' profile).")
 	flag.BoolVar(&deafultEnvVars, "default-env-vars", false, "Use default env vars (AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY).")
 	flag.Parse()
 
 	var dnsProvider dnsproviders.Provider = dnsproviders.Route53{
 		RecordSet: dnsproviders.RecordSet{
-			HostedZoneID:  hostedZoneID,
 			RecordSetType: "A",
 			TTL:           ttl,
 		},
-		SharedCreds: sharedCreds,
+		HostedZoneID:   hostedZoneID,
+		SharedCreds:    sharedCreds,
 		DeafultEnvVars: deafultEnvVars,
 	}
 

@@ -5,10 +5,10 @@ type Provider interface {
 	UpdateRecordSet(recordSetName, recordSetValue string) (string, error)
 	DeleteRecordSet(recordSetName, recordSetValue string) (string, error)
 	GetRecordSet(recordSetName string) (string, error)
+	GetDomainName() (string, error)
 }
 
 type RecordSet struct {
-	HostedZoneID  string
 	RecordSetType string
 	TTL           int64
 }

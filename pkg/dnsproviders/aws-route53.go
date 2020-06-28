@@ -14,6 +14,7 @@ import (
 // Route53 represnets a Route53 client
 type Route53 struct {
 	RecordSet      RecordSet
+	HostedZoneID   string
 	SVC            route53iface.Route53API
 	SharedCreds    bool
 	DeafultEnvVars bool
@@ -33,7 +34,7 @@ func (r Route53) getService() (route53iface.Route53API, error) {
 					os.Getenv("AWS_ACCESS_KEY_ID_ROUTE53"),
 					os.Getenv("AWS_SECRET_ACCESS_KEY_ROUTE53"),
 					""),
-				}
+			}
 		}
 		sess, err := session.NewSession(config)
 		if err != nil {
@@ -84,7 +85,7 @@ func (r Route53) ChangeRecordSet(action, recordSetName, recordSetValue string) (
 				},
 			},
 		},
-		HostedZoneId: aws.String(r.RecordSet.HostedZoneID),
+		HostedZoneId: aws.String(r.HostedZoneID),
 	}
 
 	result, err := svc.ChangeResourceRecordSets(input)
@@ -99,7 +100,7 @@ func (r Route53) GetRecordSet(recordSetName string) (string, error) {
 	}
 
 	listParams := &route53.ListResourceRecordSetsInput{
-		HostedZoneId:    aws.String(r.RecordSet.HostedZoneID),
+		HostedZoneId:    aws.String(r.HostedZoneID),
 		MaxItems:        aws.String("1"),
 		StartRecordName: aws.String(recordSetName),
 		StartRecordType: aws.String(r.RecordSet.RecordSetType),
@@ -123,4 +124,22 @@ func (r Route53) GetRecordSet(recordSetName string) (string, error) {
 	}
 
 	return recordSet.String(), nil
+}
+
+// GetDomainName returns domain name of the associated hosted zone
+func (r Route53) GetDomainName() (string, error) {
+	svc, err := r.getService()
+	if err != nil {
+		return "", err
+	}
+
+	input := &route53.GetHostedZoneInput{
+		Id: aws.String(r.HostedZoneID),
+	}
+
+	result, err := svc.GetHostedZone(input)
+	if err != nil {
+		return "", err
+	}
+	return *result.HostedZone.Name, err
 }
