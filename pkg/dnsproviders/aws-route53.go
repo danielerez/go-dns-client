@@ -141,5 +141,5 @@ func (r Route53) GetDomainName() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return *result.HostedZone.Name, err
+	return strings.TrimSuffix(*result.HostedZone.Name, "."), err
 }
