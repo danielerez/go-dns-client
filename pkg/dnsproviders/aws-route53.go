@@ -27,8 +27,7 @@ func (r Route53) getService() (route53iface.Route53API, error) {
 			config = &aws.Config{
 				Credentials: credentials.NewSharedCredentials("", "route53"),
 			}
-		}
-		if !r.DeafultEnvVars {
+		} else if !r.DeafultEnvVars {
 			config = &aws.Config{
 				Credentials: credentials.NewStaticCredentials(
 					os.Getenv("AWS_ACCESS_KEY_ID_ROUTE53"),
